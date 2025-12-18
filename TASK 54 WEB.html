@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TalentTrove – Artist Growth & Networking Platform</title>
+
+  <!-- ====== STYLES ====== -->
+<style>
+:root {
+  --primary: #6366f1;
+  --secondary: #020617;
+  --bg: #0b0f14;
+  --card: #111827;
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+  --border: #1f2937;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+header {
+  background: linear-gradient(135deg, #1e1b4b, #312e81);
+  color: #f8fafc;
+  padding: 28px 15px;
+  text-align: center;
+}
+
+header h1 { margin: 0; font-size: 2.3rem; }
+header p { margin: 6px 0 0; opacity: 0.85; }
+
+nav {
+  background: var(--secondary);
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+}
+
+nav button {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 8px 18px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+nav button:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.page {
+  display: none;
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 26px;
+  background: var(--card);
+  border-radius: 14px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.45);
+  border: 1px solid var(--border);
+}
+
+h2 {
+  color: #a5b4fc;
+  margin-top: 0;
+}
+
+input, select, button {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #020617;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+input::placeholder {
+  color: #6b7280;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #6366f1, #818cf8);
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  background: #020617;
+  border: 1px solid var(--border);
+  padding: 16px;
+  border-radius: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.6);
+}
+
+.tag {
+  display: inline-block;
+  background: rgba(99,102,241,0.15);
+  color: #c7d2fe;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  margin-top: 6px;
+}
+
+a {
+  color: #a5b4fc;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ===== MODAL ===== */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(2,6,23,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.modal-content {
+  background: #020617;
+  width: 420px;
+  padding: 26px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+
+.modal-content h2 {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+footer {
+  text-align: center;
+  padding: 18px;
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>TalentTrove</h1>
+  <p>Build portfolios • Discover talent • Grow your career</p>
+</header>
+
+<nav>
+  <button onclick="showPage('profile')">Profile</button>
+  <button onclick="showPage('portfolio')">Portfolio</button>
+  <button onclick="showPage('discover')">Discover</button>
+  <button onclick="showPage('jobs')">Job Board</button>
+  <button onclick="showPage('export')">Export</button>
+</nav>
+
+<!-- ===== REGISTRATION MODAL ===== -->
+<div class="modal" id="registerModal">
+  <div class="modal-content">
+    <h2>Create Your Artist Profile</h2>
+    <input id="regName" placeholder="Full Name" />
+    <input id="regSkill" placeholder="Primary Skill / Profession" />
+    <input id="regLocation" placeholder="Location" />
+    <input id="regLinkedin" placeholder="LinkedIn Profile URL (optional)" />
+    <button class="btn-primary" onclick="registerArtist()">Get Started</button>
+  </div>
+</div>
+
+<!-- ===== PROFILE PAGE ===== -->
+<section id="profile" class="page">
+  <h2>Your Profile</h2>
+  <p><b>Name:</b> <span id="pName"></span></p>
+  <p><b>Skill:</b> <span id="pSkill"></span></p>
+  <p><b>Location:</b> <span id="pLocation"></span></p>
+  <p><b>Followers:</b> <span id="pFollowers"></span></p>
+  <p><b>Portfolio Views:</b> <span id="pViews"></span></p>
+  <p><b>LinkedIn:</b> <a id="pLinkedIn" target="_blank">View Profile</a></p>
+</section>
+
+<!-- ===== PORTFOLIO PAGE ===== -->
+<section id="portfolio" class="page">
+  <h2>Portfolio Builder</h2>
+  <input id="artTitle" placeholder="Artwork / Project Title" />
+  <select id="artCategory">
+    <option>UI/UX Design</option>
+    <option>Frontend Development</option>
+    <option>Graphic Design</option>
+    <option>3D Art</option>
+  </select>
+  <button class="btn-primary" onclick="addArtwork()">Add to Portfolio</button>
+  <p><i>AI Tags:</i> <span id="aiTag"></span></p>
+  <div id="artworks" class="grid"></div>
+</section>
+
+<!-- ===== DISCOVER PAGE ===== -->
+<section id="discover" class="page">
+  <h2>Discover Professionals</h2>
+  <input id="searchSkill" placeholder="Search by name or profession" onkeyup="renderArtists()" />
+  <div id="artistList" class="grid"></div>
+</section>
+
+<!-- ===== JOB BOARD ===== -->
+<section id="jobs" class="page">
+  <h2>Job Board</h2>
+  <p>Explore exhibitions, freelance projects, full-time roles, and collaborations curated for creative and tech professionals.</p>
+
+  <div class="grid">
+    <div class="card">
+      <b>UI/UX Designer</b><br/>
+      Startup – Remote<br/>
+      <div class="tag">Full-time</div>
+      <div class="tag">₹8–12 LPA</div>
+      <p>Design user-centric web and mobile interfaces for a SaaS product.</p>
+    </div>
+
+    <div class="card">
+      <b>Frontend Developer</b><br/>
+      Tech Firm – Hyderabad<br/>
+      <div class="tag">Contract</div>
+      <div class="tag">React / JS</div>
+      <p>Build responsive UI components and integrate APIs.</p>
+    </div>
+
+    <div class="card">
+      <b>3D Artist</b><br/>
+      Gaming Studio – Pune<br/>
+      <div class="tag">Freelance</div>
+      <div class="tag">Blender</div>
+      <p>Create high-quality 3D assets for game environments.</p>
+    </div>
+
+    <div class="card">
+      <b>Graphic Designer</b><br/>
+      Advertising Agency – Mumbai<br/>
+      <div class="tag">On-site</div>
+      <div class="tag">Branding</div>
+      <p>Design branding materials, posters, and social media creatives.</p>
+    </div>
+
+    <div class="card">
+      <b>Photography Exhibition</b><br/>
+      Art Gallery – Delhi<br/>
+      <div class="tag">Exhibition</div>
+      <div class="tag">Open Call</div>
+      <p>Submit 5–10 photographs for a curated urban photography exhibition.</p>
+    </div>
+
+    <div class="card">
+      <b>AI Prompt Designer</b><br/>
+      Creative Tech Startup – Bangalore<br/>
+      <div class="tag">Remote</div>
+      <div class="tag">AI</div>
+      <p>Work with generative AI tools to design creative prompts and workflows.</p>
+    </div>
+
+    <div class="card">
+      <b>Motion Graphics Artist</b><br/>
+      Media House – Chennai<br/>
+      <div class="tag">Part-time</div>
+      <div class="tag">After Effects</div>
+      <p>Create short motion videos for digital marketing campaigns.</p>
+    </div>
+
+    <div class="card">
+      <b>Open Art Residency</b><br/>
+      International Art Foundation<br/>
+      <div class="tag">Residency</div>
+      <div class="tag">Stipend</div>
+      <p>3-month residency program for emerging artists with mentorship.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== EXPORT ===== -->
+<section id="export" class="page">
+  <h2>Export Portfolio</h2>
+  <p>Download your portfolio as a shareable PDF.</p>
+  <button class="btn-primary" onclick="exportPDF()">Export (Simulation)</button>
+</section>
+
+<footer>
+  © 2025 TalentTrove • Academic Project
+</footer>
+
+<!-- ===== SCRIPT ===== -->
+<script>
+  let currentUser = null;
+  let artists = [];
+
+  const names = ['Aarav','Riya','Kunal','Sneha','Rahul','Ananya','Vikram','Neha','Arjun','Pooja'];
+  const surnames = ['Sharma','Reddy','Mehta','Patel','Iyer','Khan','Verma','Gupta','Das','Nair'];
+  const skills = ['Frontend Developer','Backend Developer','UI/UX Designer','Graphic Designer','3D Artist','Data Analyst','AI Engineer','Product Designer'];
+  const cities = ['Hyderabad','Bangalore','Mumbai','Delhi','Pune','Chennai'];
+
+  // Generate fake profiles
+  for (let i = 0; i < 100; i++) {
+    artists.push({
+      name: names[Math.floor(Math.random()*names.length)] + ' ' + surnames[Math.floor(Math.random()*surnames.length)],
+      skill: skills[Math.floor(Math.random()*skills.length)],
+      location: cities[Math.floor(Math.random()*cities.length)],
+      followers: Math.floor(Math.random()*500),
+      views: Math.floor(Math.random()*2000),
+      linkedin: 'https://www.linkedin.com'
+    });
+  }
+
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+    document.getElementById(id).style.display = 'block';
+    if (id === 'discover') renderArtists();
+  }
+
+  function registerArtist() {
+    currentUser = {
+      name: document.getElementById('regName').value,
+      skill: document.getElementById('regSkill').value,
+      location: document.getElementById('regLocation').value,
+      linkedin: document.getElementById('regLinkedin').value || 'https://www.linkedin.com',
+      followers: 0,
+      views: 0,
+      portfolio: []
+    };
+
+    artists.unshift(currentUser);
+
+    // FIXED undefined issue
+    document.getElementById('pName').innerText = currentUser.name;
+    document.getElementById('pSkill').innerText = currentUser.skill;
+    document.getElementById('pLocation').innerText = currentUser.location;
+    document.getElementById('pFollowers').innerText = currentUser.followers;
+    document.getElementById('pViews').innerText = currentUser.views;
+    document.getElementById('pLinkedIn').href = currentUser.linkedin;
+
+    document.getElementById('registerModal').style.display = 'none';
+    showPage('profile');
+  }
+
+  function addArtwork() {
+    if (!currentUser) return;
+    const title = artTitle.value;
+    if (!title) return;
+    const category = artCategory.value;
+    const tags = category + ', Creative, Visual';
+    aiTag.innerText = tags;
+    currentUser.views += 10;
+    document.getElementById('pViews').innerText = currentUser.views;
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `<b>${title}</b><div class="tag">${category}</div><br/>Tags: ${tags}`;
+    artworks.appendChild(div);
+    artTitle.value = '';
+  }
+
+  function renderArtists() {
+    const key = searchSkill.value.toLowerCase();
+    artistList.innerHTML = '';
+    artists
+      .filter(a => a.name.toLowerCase().includes(key) || a.skill.toLowerCase().includes(key))
+      .forEach(a => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `<b>${a.name}</b><br/>${a.skill}<br/>${a.location}<br/>
+        <div class="tag">Followers: ${a.followers}</div>
+        <div class="tag">Views: ${a.views}</div><br/>
+        <a href="${a.linkedin}" target="_blank">LinkedIn</a>`;
+        artistList.appendChild(div);
+      });
+  }
+
+  function exportPDF() {
+    alert('Portfolio exported successfully (simulation).');
+  }
+</script>
+
+</body>
+</html>
